@@ -1,5 +1,5 @@
 services:
-  ubuntu_docker:
+  dind:
     image: xkand/dind:latest
     container_name: dind
     restart: always
