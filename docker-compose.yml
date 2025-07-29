@@ -1,0 +1,23 @@
+services:
+  ubuntu_docker:
+    image: xkand/dind:latest
+    container_name: dind
+    restart: always
+    tty: true
+    stdin_open: true
+    privileged: true
+    volumes:
+      - ./data:/var/lib/docker
+      - ./daemon.json:/etc/docker/daemon.json
+      - ./docker:/root/docker
+    # 两种网络形式，host和bridge
+    # bridge网络时 环境变量中的端口 和 映射端口的右边要一致
+    # ROOT_PASSWORD 默认 SSH_PORT 默认是32321
+    network_mode: host
+    # ports:
+     # - 32321:32321
+    environment:
+      - ROOT_PASSWORD=123456
+      - SSH_PORT=32321
+    # devices:
+      # - /dev/dri:/dev/dri

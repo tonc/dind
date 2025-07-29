@@ -1,2 +1,1 @@
-# dind
-Docker in docker AS ubuntu
+# Docker in docker AS ubuntu
