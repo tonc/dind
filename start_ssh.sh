@@ -3,7 +3,7 @@
 echo "Starting Docker daemon..."
 dockerd \
   --host=unix:///var/run/docker.sock \
-  --host=tcp://0.0.0.0:2375 \
+  # --host=tcp://0.0.0.0:2375 \
   --storage-driver=vfs &
 
 # 等待 Docker Daemon 启动，最多等待 30 秒
