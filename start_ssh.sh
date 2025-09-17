@@ -1,5 +1,6 @@
 #!/bin/bash
 
+wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json
 echo "Starting Docker daemon..."
 dockerd \
   --host=unix:///var/run/docker.sock \
