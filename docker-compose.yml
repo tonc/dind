@@ -8,7 +8,6 @@ services:
     privileged: true
     volumes:
       - ./data:/var/lib/docker
-      - ./daemon.json:/etc/docker/daemon.json
       - ./docker:/root/docker
     # 两种网络形式，host和bridge
     # bridge网络时 环境变量中的端口 和 映射端口的右边要一致
