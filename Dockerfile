@@ -13,7 +13,6 @@ RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.l
 RUN apt-get update && \
     apt-get install -y openssh-server tzdata iputils-ping curl wget nano vim net-tools git git-lfs screen && \
     mkdir -p /var/run/sshd /etc/docker && \
-    wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
     curl -fsSL https://gitee.com/tech-shrimp/docker_installer/releases/download/latest/linux.sh| bash -s docker --mirror Aliyun && \
