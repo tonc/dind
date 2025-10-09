@@ -1,6 +1,11 @@
 #!/bin/bash
 
-wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json
+# 删除可能残留的 pid 文件
+rm -f /var/run/docker.pid
+
+# 下载自定义的 daemon.json（可选）
+wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json || true
+
 echo "Starting Docker daemon..."
 dockerd \
   --host=unix:///var/run/docker.sock \
