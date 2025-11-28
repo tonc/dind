@@ -97,8 +97,8 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          xkand/dind:latest
           xkand/dind:${{ steps.version-check.outputs.new-version }}
+          xkand/dind:latest
         labels: |
           org.opencontainers.image.title=Docker In Docker
           org.opencontainers.image.description=Ubuntu with Docker and SSH
