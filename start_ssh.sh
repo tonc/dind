@@ -6,12 +6,10 @@ rm -f /var/run/docker.pid
 # 下载自定义的 daemon.json（可选）
 # wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json || true
 
-# 生成 MOTD（登录欢迎信息）
-echo "Generating MOTD..."
+# 生成 SSH Banner
+echo "Generating SSH Banner..."
 /usr/local/bin/update-motd.sh
-echo "MOTD file content:"
-cat /etc/motd
-echo "---"
+cp /etc/motd /etc/ssh/banner.txt
 
 echo "Starting Docker daemon..."
 dockerd \
@@ -34,6 +32,7 @@ echo "Docker daemon started successfully."
 # 启动 SSH 服务
 echo "Starting SSH service..."
 sed -i "s/#Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config
+sed -i "s/#Banner none/Banner \/etc\/ssh\/banner.txt/" /etc/ssh/sshd_config
 echo "root:${ROOT_PASSWORD}" | chpasswd
 
 
