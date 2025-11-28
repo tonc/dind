@@ -9,6 +9,9 @@ rm -f /var/run/docker.pid
 # 生成 MOTD（登录欢迎信息）
 echo "Generating MOTD..."
 /usr/local/bin/update-motd.sh
+echo "MOTD file content:"
+cat /etc/motd
+echo "---"
 
 echo "Starting Docker daemon..."
 dockerd \

@@ -61,3 +61,4 @@ EOF
 
 # 设置权限
 chmod 644 "$MOTD_FILE"
+chown root:root "$MOTD_FILE"
