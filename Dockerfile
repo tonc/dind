@@ -45,7 +45,7 @@ RUN rm -rf /etc/update-motd.d/* && \
 # 设置 root 密码默认值（运行时会被覆盖）
 ENV ROOT_PASSWORD=123456
 
-# 设置 SSH 服务默认端口
+# 设置 SSH 服务默认端口（容器内部）
 ENV SSH_PORT=32321
 
 # 使用脚本启动 SSH 服务

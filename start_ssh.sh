@@ -11,9 +11,6 @@ echo "Setting up MOTD display..."
 cat > /usr/local/bin/show-motd << 'EOF'
 #!/bin/bash
 
-# 强制使用换行符
-IFS=''
-
 # 获取系统信息
 DOCKER_VERSION=$(docker --version 2>/dev/null | head -1 | cut -d' ' -f3 | cut -d',' -f1 || echo "未安装")
 HOSTNAME=$(hostname)
@@ -34,7 +31,7 @@ printf '%s\n' "              "
 printf '%s\n' "  📋 系统信息:"
 printf '%s\n' "     • 操作系统: Ubuntu"
 printf '%s\n' "     • Docker 版本: $DOCKER_VERSION"
-printf '%s\n' "     • SSH 端口: $SSH_PORT"
+printf '%s\n' "     • SSH 端口: $SSH_PORT (容器内部端口)"
 printf '%s\n' "     • 容器名称: $HOSTNAME"
 printf '%s\n' "     • 运行时间: $UPTIME"
 printf '%s\n' "     • 磁盘使用: $DISK_USAGE"

@@ -40,7 +40,8 @@ docker compose down
 docker run -d \
   --name dind \
   --privileged \
-  -p 32321:32321 \
+  -- hostname dind \
+  -p 32231:32321 \
   -e ROOT_PASSWORD=123456 \
   -e SSH_PORT=32321 \
   xkand/dind:latest
