@@ -1,33 +1,138 @@
-name: 构建并推送 Docker 镜像
+name: Docker In Docker Build
 
 on:
-  workflow_dispatch: # 手动触发
+  schedule:
+    # 每1小时检查一次
+    - cron: '0 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Dockerfile'
+      - 'start_ssh.sh'
 
 jobs:
-  build:
+  check-and-build:
     runs-on: ubuntu-latest
+    
     steps:
-    - name: 检出代码
-      uses: actions/checkout@v2
-
-    - name: 设置 Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    # 登录到 Docker
-    - name: 登录到 Docker Hub
-      uses: docker/login-action@v2
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Check Docker CLI version
+      id: version-check
+      run: |
+        echo "检查 Docker CLI 版本..."
+        
+        # 获取最新稳定版本 (排除 RC)
+        LATEST_VERSION=$(curl -s "https://api.github.com/repos/docker/cli/tags" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "User-Agent: GitHub-Action" | \
+          jq -r '.[] | select(.name | contains("rc") | not) | .name' | head -1)
+        
+        if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" = "null" ]; then
+          echo "❌ 无法获取最新版本"
+          exit 1
+        fi
+        
+        echo "🐳 最新稳定版本: $LATEST_VERSION"
+        
+        # 读取当前版本
+        if [ -f "version" ]; then
+          CURRENT_VERSION=$(cat version)
+          echo "📦 当前版本: $CURRENT_VERSION"
+        else
+          CURRENT_VERSION=""
+          echo "📦 当前版本: 未记录"
+        fi
+        
+        # 比较版本
+        if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
+          echo "✅ 发现新版本，需要构建镜像"
+          echo "should-build=true" >> $GITHUB_OUTPUT
+          echo "new-version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "old-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        else
+          echo "ℹ️ 版本相同，无需构建"
+          echo "should-build=false" >> $GITHUB_OUTPUT
+          echo "new-version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "old-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Update version file
+      if: steps.version-check.outputs.should-build == 'true'
+      run: |
+        NEW_VERSION="${{ steps.version-check.outputs.new-version }}"
+        echo "$NEW_VERSION" > version
+        echo "✅ 已更新版本文件: $NEW_VERSION"
+        
+        # 提交版本文件
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add version
+        git commit -m "Update Docker CLI version to $NEW_VERSION"
+        git push
+        
+    - name: Set up Docker Buildx
+      if: steps.version-check.outputs.should-build == 'true'
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Log in to Docker Hub
+      if: steps.version-check.outputs.should-build == 'true'
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: 构建并推送多平台 Docker 镜像
-      uses: docker/build-push-action@v4
+        
+    - name: Build and push Docker image
+      if: steps.version-check.outputs.should-build == 'true'
+      uses: docker/build-push-action@v5
       with:
         context: .
-        file: Dockerfile
-        platforms: |
-          linux/amd64
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/dind:latest
-
+          xkand/dind:latest
+          xkand/dind:${{ steps.version-check.outputs.new-version }}
+        labels: |
+          org.opencontainers.image.title=Docker In Docker
+          org.opencontainers.image.description=Ubuntu with Docker and SSH
+          org.opencontainers.image.version=${{ steps.version-check.outputs.new-version }}
+          org.opencontainers.image.source=https://github.com/${{ github.repository }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Create release notification
+      if: steps.version-check.outputs.should-build == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const newVersion = '${{ steps.version-check.outputs.new-version }}';
+          const oldVersion = '${{ steps.version-check.outputs.old-version }}';
+          
+          const title = `🐳 Docker CLI Updated to ${newVersion}`;
+          const body = `
+          ## Docker CLI Version Update
+          
+          **Old Version:** ${oldVersion || 'Not recorded'}
+          **New Version:** ${newVersion}
+          
+          Docker image has been built and pushed to Docker Hub.
+          
+          **Image Tags:**
+          - \`xkand/dind:latest\`
+          - \`xkand/dind:${newVersion}\`
+          
+          **Workflow:** [View Build Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          
+          ---
+          *This update was triggered automatically by version check.*
+          `;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['docker', 'version-update', 'automated']
+          });

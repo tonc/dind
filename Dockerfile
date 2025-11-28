@@ -1,6 +1,14 @@
 # 使用 ubuntu 镜像作为基础
 FROM ubuntu
 
+# 镜像标签信息
+LABEL maintainer="xkand <tonc@163.com>" \
+      org.opencontainers.image.authors="xkand" \
+      org.opencontainers.image.title="Docker in Docker" \
+      org.opencontainers.image.description="Ubuntu with Docker and SSH for Chinese users" \
+      org.opencontainers.image.source="https://github.com/xkand/dind" \
+      org.opencontainers.image.licenses="MIT"
+
 # 设置环境变量，避免交互式提示，并设置时区环境变量
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
@@ -12,7 +20,7 @@ RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.l
 # 更新包索引并安装 openssh-server 和 tzdata，然后清理缓存
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y openssh-server tzdata iputils-ping curl wget nano vim net-tools git git-lfs screen tree && \
+    apt-get install -y openssh-server tzdata iputils-ping curl wget nano vim net-tools git git-lfs screen tree htop iotop dnsutils unzip jq less && \
     mkdir -p /var/run/sshd /etc/docker && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
@@ -22,9 +30,14 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 复制启动脚本
+# 复制启动脚本和 MOTD
 COPY start_ssh.sh /usr/local/bin/start_ssh.sh
-RUN chmod +x /usr/local/bin/start_ssh.sh
+COPY update-motd.sh /usr/local/bin/update-motd.sh
+COPY motd /etc/motd
+RUN chmod +x /usr/local/bin/start_ssh.sh /usr/local/bin/update-motd.sh
+
+# 配置 MOTD 显示
+RUN echo "session optional pam_motd.so motd=/etc/motd" >> /etc/pam.d/sshd
 
 # 设置 root 密码默认值（运行时会被覆盖）
 ENV ROOT_PASSWORD=123456

@@ -6,6 +6,10 @@ rm -f /var/run/docker.pid
 # 下载自定义的 daemon.json（可选）
 # wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json || true
 
+# 更新 MOTD（登录欢迎信息）
+echo "Updating MOTD..."
+/usr/local/bin/update-motd.sh
+
 echo "Starting Docker daemon..."
 dockerd \
   --host=unix:///var/run/docker.sock \
