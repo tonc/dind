@@ -13,8 +13,9 @@ LABEL maintainer="xkand <tonc@163.com>" \
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
 
-# 替换为中科大国内源（可选）
+# 替换为中科大国内源（支持 amd64 和 arm64）
 RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources && \
+    sed -i 's@//.*ports.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources && \
     sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/ubuntu.sources
 
 # 更新包索引并安装 openssh-server 和 tzdata，然后清理缓存

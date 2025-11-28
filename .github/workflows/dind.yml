@@ -125,8 +125,8 @@ jobs:
           Docker image has been built and pushed to Docker Hub.
           
           **Image Tags:**
-          - \`xkand/dind:latest\`
           - \`xkand/dind:${newVersion}\`
+          - \`xkand/dind:latest\`
           
           **Workflow:** [View Build Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           
