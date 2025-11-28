@@ -10,6 +10,10 @@ rm -f /var/run/docker.pid
 echo "Setting up MOTD display..."
 cat > /usr/local/bin/show-motd << 'EOF'
 #!/bin/bash
+
+# 强制使用换行符
+IFS=''
+
 # 获取系统信息
 DOCKER_VERSION=$(docker --version 2>/dev/null | head -1 | cut -d' ' -f3 | cut -d',' -f1 || echo "未安装")
 HOSTNAME=$(hostname)
@@ -21,37 +25,51 @@ DISK_USAGE=$(df -h / | tail -1 | awk '{print $5 " (" $3 "/" $2 ")"}')
 CONTAINER_COUNT=$(docker ps -q 2>/dev/null | wc -l)
 IMAGE_COUNT=$(docker images -q 2>/dev/null | wc -l)
 
-# 显示 MOTD
-echo "═══════════════════════════════════════════════════════════════"
-echo "                    🐳 Docker 容器环境 🐳"
-echo "              "
-echo "              欢迎使用 Docker in Docker 容器！"
-echo "              "
-echo "  📋 系统信息:"
-echo "     • 操作系统: Ubuntu"
-echo "     • Docker 版本: $DOCKER_VERSION"
-echo "     • SSH 端口: $SSH_PORT"
-echo "     • 容器名称: $HOSTNAME"
-echo "     • 运行时间: $UPTIME"
-echo "     • 磁盘使用: $DISK_USAGE"
-echo "              "
-echo "  🐳 Docker 状态:"
-echo "     • 运行中容器: $CONTAINER_COUNT 个"
-echo "     • 可用镜像: $IMAGE_COUNT 个"
-echo "              "
-echo "  ⚠️  请记得定期清理不用的容器和镜像！"
-echo "              "
-echo "═══════════════════════════════════════════════════════════════"
-echo ""
-echo "最后更新时间: $(date '+%Y-%m-%d %H:%M:%S')"
+# 使用 printf 确保换行
+printf '%s\n' "═══════════════════════════════════════════════════════════════"
+printf '%s\n' "                    🐳 Docker 容器环境 🐳"
+printf '%s\n' "              "
+printf '%s\n' "              欢迎使用 Docker in Docker 容器！"
+printf '%s\n' "              "
+printf '%s\n' "  📋 系统信息:"
+printf '%s\n' "     • 操作系统: Ubuntu"
+printf '%s\n' "     • Docker 版本: $DOCKER_VERSION"
+printf '%s\n' "     • SSH 端口: $SSH_PORT"
+printf '%s\n' "     • 容器名称: $HOSTNAME"
+printf '%s\n' "     • 运行时间: $UPTIME"
+printf '%s\n' "     • 磁盘使用: $DISK_USAGE"
+printf '%s\n' "              "
+printf '%s\n' "  🐳 Docker 状态:"
+printf '%s\n' "     • 运行中容器: $CONTAINER_COUNT 个"
+printf '%s\n' "     • 可用镜像: $IMAGE_COUNT 个"
+printf '%s\n' "              "
+printf '%s\n' "  ⚠️  请记得定期清理不用的容器和镜像！"
+printf '%s\n' "              "
+printf '%s\n' "═══════════════════════════════════════════════════════════════"
+printf '%s\n' ""
+printf '%s\n' "最后更新时间: $(date '+%Y-%m-%d %H:%M:%S')"
 EOF
 
 chmod +x /usr/local/bin/show-motd
 
-# 添加到 .bashrc
-if ! grep -q "show-motd" /root/.bashrc; then
-    echo "/usr/local/bin/show-motd" >> /root/.bashrc
+# 测试 MOTD 显示
+echo "Testing MOTD display:"
+/usr/local/bin/show-motd
+echo "--- MOTD test end ---"
+
+# 创建 .bash_profile 来显示 MOTD
+cat > /root/.bash_profile << 'EOF'
+# 显示 MOTD
+/usr/local/bin/show-motd
+
+# 如果存在 .bashrc 则执行
+if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
 fi
+EOF
+
+# 确保 .bash_profile 存在
+touch /root/.bash_profile
 
 echo "Starting Docker daemon..."
 dockerd \

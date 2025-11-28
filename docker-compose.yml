@@ -6,6 +6,7 @@ services:
     tty: true
     stdin_open: true
     privileged: true
+    hostname: dind
     volumes:
       - ./data:/var/lib/docker
       - ./docker:/root/docker
