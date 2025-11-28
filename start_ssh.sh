@@ -6,9 +6,10 @@ rm -f /var/run/docker.pid
 # 下载自定义的 daemon.json（可选）
 # wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json || true
 
-# 更新 MOTD（登录欢迎信息）
-echo "Updating MOTD..."
+# 生成 MOTD（登录欢迎信息）
+echo "Generating MOTD..."
 /usr/local/bin/update-motd.sh
+echo "" > /root/.hushlogin
 
 echo "Starting Docker daemon..."
 dockerd \
@@ -32,6 +33,12 @@ echo "Docker daemon started successfully."
 echo "Starting SSH service..."
 sed -i "s/#Port 22/Port ${SSH_PORT}/" /etc/ssh/sshd_config
 echo "root:${ROOT_PASSWORD}" | chpasswd
+
+# 在 .bashrc 中添加 MOTD 显示
+if ! grep -q "update-motd.sh" /root/.bashrc; then
+    echo '/usr/local/bin/update-motd.sh' >> /root/.bashrc
+fi
+
 exec /usr/sbin/sshd -D
 
 echo "ssh started successfully."

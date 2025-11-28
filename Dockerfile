@@ -40,7 +40,8 @@ RUN chmod +x /usr/local/bin/start_ssh.sh /usr/local/bin/update-motd.sh
 
 # 禁用默认 MOTD 并使用自定义 MOTD
 RUN rm -f /etc/update-motd.d/00-header /etc/update-motd.d/10-help-text /etc/update-motd.d/50-motd-news /etc/update-motd.d/80-esm /etc/update-motd.d/90-updates-available /etc/update-motd.d/95-hwe-eol && \
-    echo "session optional pam_motd.so motd=/etc/motd noupdate" >> /etc/pam.d/sshd
+    rm -f /etc/motd && \
+    sed -i '/pam_motd.so/d' /etc/pam.d/sshd
 
 # 设置 root 密码默认值（运行时会被覆盖）
 ENV ROOT_PASSWORD=123456
