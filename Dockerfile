@@ -31,13 +31,13 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 复制启动脚本和 MOTD
+# 复制启动脚本和 MOTD 模板
 COPY start_ssh.sh /usr/local/bin/start_ssh.sh
 COPY update-motd.sh /usr/local/bin/update-motd.sh
-COPY motd /etc/motd
+COPY motd /etc/motd.template
 RUN chmod +x /usr/local/bin/start_ssh.sh /usr/local/bin/update-motd.sh
 
-# 配置 MOTD 显示
+# 配置 MOTD 显示（动态生成）
 RUN echo "session optional pam_motd.so motd=/etc/motd" >> /etc/pam.d/sshd
 
 # 设置 root 密码默认值（运行时会被覆盖）
