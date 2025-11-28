@@ -12,6 +12,7 @@ LABEL maintainer="xkand <tonc@163.com>" \
 # 设置环境变量，避免交互式提示，并设置时区环境变量
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Shanghai
+ENV MOTD_DISABLE=1
 
 # 替换为中科大国内源（支持 amd64 和 arm64）
 RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources && \
@@ -37,8 +38,9 @@ COPY update-motd.sh /usr/local/bin/update-motd.sh
 COPY motd /etc/motd.template
 RUN chmod +x /usr/local/bin/start_ssh.sh /usr/local/bin/update-motd.sh
 
-# 配置 MOTD 显示（动态生成）
-RUN echo "session optional pam_motd.so motd=/etc/motd" >> /etc/pam.d/sshd
+# 禁用默认 MOTD 并使用自定义 MOTD
+RUN rm -f /etc/update-motd.d/00-header /etc/update-motd.d/10-help-text /etc/update-motd.d/50-motd-news /etc/update-motd.d/80-esm /etc/update-motd.d/90-updates-available /etc/update-motd.d/95-hwe-eol && \
+    echo "session optional pam_motd.so motd=/etc/motd noupdate" >> /etc/pam.d/sshd
 
 # 设置 root 密码默认值（运行时会被覆盖）
 ENV ROOT_PASSWORD=123456
