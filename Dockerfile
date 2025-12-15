@@ -21,7 +21,7 @@ RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.l
 # 更新包索引并安装 openssh-server 和 tzdata，然后清理缓存
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y openssh-server tzdata iputils-ping curl wget nano vim net-tools git git-lfs screen tree htop iotop dnsutils unzip jq less && \
+    apt-get install -y openssh-server tzdata iputils-ping curl wget nano vim net-tools rsync git git-lfs screen tree htop iotop dnsutils unzip jq less && \
     mkdir -p /var/run/sshd /etc/docker && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
