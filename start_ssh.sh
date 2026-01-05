@@ -4,7 +4,7 @@
 rm -f /var/run/docker.pid
 
 # 下载自定义的 daemon.json（可选）
-# wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json || true
+wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json || true
 
 # 创建 MOTD 显示函数
 echo "Setting up MOTD display..."
