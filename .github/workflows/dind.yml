@@ -3,7 +3,7 @@ name: Docker In Docker Build
 on:
   schedule:
     # 每1小时检查一次
-    - cron: '0 * * * *'
+    - cron: '12 12 * * *'
   workflow_dispatch:
   push:
     branches: [ main ]
