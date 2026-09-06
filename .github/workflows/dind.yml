@@ -29,17 +29,38 @@ jobs:
       id: version-check
       run: |
         echo "检查 Docker CLI 版本..."
+
+        # Add Docker's official GPG key:
+        sudo apt update
+        sudo apt install ca-certificates curl
+        sudo install -m 0755 -d /etc/apt/keyrings
+        sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
         
-        # 获取最新稳定版本 (排除 RC)
-        LATEST_VERSION=$(curl -s "https://api.github.com/repos/docker/cli/tags" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -H "User-Agent: GitHub-Action" | \
-          jq -r '.[] | select(.name | contains("rc") | not) | .name' | head -1)
+        # Add the repository to Apt sources:
+        sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+        Types: deb
+        URIs: https://download.docker.com/linux/debian
+        Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+        Components: stable
+        Architectures: $(dpkg --print-architecture)
+        Signed-By: /etc/apt/keyrings/docker.asc
+        EOF
         
-        if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" = "null" ]; then
-          echo "❌ 无法获取最新版本"
-          exit 1
-        fi
+        sudo apt update
+
+        LATEST_VERSION=$(apt-cache madison docker-ce | awk '{print $3}' | grep -Eo "[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}" | sort -t '.' -k1,1nr -k2,2nr -k3,3nr | head -n1)
+        
+        # # 获取最新稳定版本 (排除 RC)
+        # LATEST_VERSION=$(curl -s "https://api.github.com/repos/docker/cli/tags" \
+        #   -H "Accept: application/vnd.github.v3+json" \
+        #   -H "User-Agent: GitHub-Action" | \
+        #   jq -r '.[] | select(.name | contains("rc") | not) | .name' | head -1)
+        
+        # if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" = "null" ]; then
+        #   echo "❌ 无法获取最新版本"
+        #   exit 1
+        # fi
         
         echo "🐳 最新稳定版本: $LATEST_VERSION"
         
