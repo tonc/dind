@@ -26,21 +26,7 @@ RUN apt-get update && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
     curl -fsSL https://get.docker.com/ | bash -s docker --mirror Aliyun && \
-    cat > /etc/docker/daemon.json <<-'EOF'
-{
-  "registry-mirrors": [
-    "https://docker.1ms.run",
-    "https://docker.m.daocloud.io",
-    "https://docker.ketches.cn",
-    "https://hub1.nat.tf",
-    "https://hub2.nat.tf",
-    "https://docker.1panel.live",
-    "https://docker.1panel.dev",
-    "https://hub.rat.dev",
-    "https://docker.amingg.com"
-  ]
-}
-EOF && \
+    printf '{\n  "registry-mirrors": [\n    "https://docker.1ms.run",\n    "https://docker.m.daocloud.io",\n    "https://docker.ketches.cn",\n    "https://hub1.nat.tf",\n    "https://hub2.nat.tf",\n    "https://docker.1panel.live",\n    "https://docker.1panel.dev",\n    "https://hub.rat.dev",\n    "https://docker.amingg.com"\n  ]\n}\n' > /etc/docker/daemon.json && \
     sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
