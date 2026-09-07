@@ -25,8 +25,7 @@ RUN apt-get update && \
     mkdir -p /var/run/sshd /etc/docker && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
-    curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun && \
-    mkdir /etc/docker && \
+    curl -fsSL https://get.docker.com/ | bash -s docker --mirror Aliyun && \
     cat > /etc/docker/daemon.json <<-'EOF'
 {
   "registry-mirrors": [
@@ -42,7 +41,6 @@ RUN apt-get update && \
   ]
 }
 EOF && \
-    # wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json || true && \
     sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
