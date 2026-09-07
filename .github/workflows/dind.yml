@@ -49,7 +49,7 @@ jobs:
         
         sudo apt update
 
-        LATEST_VERSION=$(apt-cache madison docker-ce | awk '{print $3}' | grep -Eo "[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}" | sort -t '.' -k1,1nr -k2,2nr -k3,3nr | head -n1)
+        LATEST_VERSION="v" + $(apt-cache madison docker-ce | awk '{print $3}' | grep -Eo "[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}" | sort -t '.' -k1,1nr -k2,2nr -k3,3nr | head -n1)
         
         # # 获取最新稳定版本 (排除 RC)
         # LATEST_VERSION=$(curl -s "https://api.github.com/repos/docker/cli/tags" \
