@@ -41,9 +41,9 @@ RUN apt-get update && \
     "https://docker.amingg.com"
   ]
 }
-EOF
+EOF && \
     # wget https://cnb.cool/xkand/tools/-/git/raw/main/daemon.json -O /etc/docker/daemon.json || true && \
-    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
